@@ -1,0 +1,1 @@
+{"js": "Cra=function(a){a=a.split(\"\");Vx.jX(a,1);Vx.hx(a,34);Vx.eZ(a,34);return a.join(\"\")}var Vx={jX:function(a,b){a.splice(0,b)},eZ:function(a){a.reverse()},hx:function(a,b){var c=a[0];a[0]=a[b%a.length];a[b%a.length]=c}};var output = Cra(\"None\");"}
