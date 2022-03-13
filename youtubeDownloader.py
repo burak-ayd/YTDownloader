@@ -14,11 +14,11 @@ class Youtube():
         self.video=video
         self.audio=audio
         self.quality=quality
+        self.cwd = path.dirname(path.abspath(__file__))
         self.options = Options()
         self.options.add_argument("--headless")
-        self.chrome_driver = r"%userprofile%\Documents\Python Projeler\YoutubeImageDownloader\chromedriver.exe"
+        self.chrome_driver = self.cwd+r"SeleniumDriver\chromedriver.exe" # Driver Version: 99.0.4844.51
         self.driver = webdriver.Chrome(options=self.options,executable_path=self.chrome_driver)
-        self.cwd = path.dirname(path.abspath(__file__))
         self.config = load(open(self.cwd+"/config.json", "rb"))
         self.videoData=self.get_video_data(self.url)
         self.streamData=self.videoData["streamingData"]
