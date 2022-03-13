@@ -99,3 +99,9 @@ class Youtube():
         p = math.pow(1024, i)
         s = round(size_bytes / p, 2)
         return "%s %s" % (s, size_name[i])
+    
+    def download_video(self,quality):
+        pass
+    
+    def download_audio(self):
+        pass
