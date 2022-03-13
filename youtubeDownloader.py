@@ -1,16 +1,16 @@
-from msilib.schema import Class
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from json import load, dumps
+from json import load, dumps,dump, loads
 from Decipher import Decipher
 from urllib.parse import unquote
-from os import path
+from os import path,remove
 from requests import get
 from re import findall
 import math
 
+
 class Youtube():
-    def __init__(self,url,video:bool,quality:int,audio:bool=False):
+    def __init__(self,url,video:bool=True,quality:int="720",audio:bool=False):
         self.url=url
         self.video=video
         self.audio=audio
@@ -18,15 +18,16 @@ class Youtube():
         self.cwd = path.dirname(path.abspath(__file__))
         self.options = Options()
         self.options.add_argument("--headless")
-        self.chrome_driver = self.cwd+r"\SeleniumDriver\chromedriver.exe" # Driver Version: 99.0.4844.51
+        self.chrome_driver = self.cwd+r"/SeleniumDriver/chromedriver.exe" # Driver Version: 99.0.4844.51
         self.driver = webdriver.Chrome(options=self.options,executable_path=self.chrome_driver)
         self.config = load(open(self.cwd+"/config.json", "rb"))
         self.videoData=self.get_video_data(self.url)
-        self.streamData=self.videoData["streamingData"]
+        self.streamData=self.videoData["streamingData"]["adaptiveFormats"]
         self.videoDetails=self.videoData["videoDetails"]
         self.videoTitle=self.videoDetails["title"]
         self.thumbnail="https://i.ytimg.com/vi/{}/maxresdefault.jpg".format(self.videoDetails["videoId"])
         self.foundLink={"FoundLink":{}}
+        self.get_download_url()
     
     def get_js(self):
         self.base_data = get('https://youtube.com/watch?v=1').text
@@ -36,19 +37,19 @@ class Youtube():
         self.config['js'] = self.data
         open(self.cwd+'/config.json', 'w').write(dumps(self.config))
         return self.data
-    
-    def get_video_data(self,url:str):  
+
+    def get_video_data(self,url):  
         self.driver.get(url)
-        self.source=self.driver.find_element_by_xpath('/html/body/script[1]').get_attribute('innerHTML')
+        script=self.driver.find_element_by_xpath('/html/body/script[1]').get_attribute('innerHTML')
         self.driver.close()
-        x=self.source.find("{")
-        self.source=self.source[x:]
-        x=self.source.find("; var")
-        self.source=self.source[:x]
-        return self.source
-    
+        x=script.find("{")
+        script=script[x:]
+        x=script.find("; var")
+        script=script[:x]
+        return loads(script,object_pairs_hook=dict)
+
     def get_download_url(self):
-        for format in self.streamData["adaptiveFormats"]:
+        for format in self.streamData:
             itag = format["itag"]
             if((itag==137 or itag==136 or itag==299 or itag==135) or (itag==140 or itag==141)):
                 if 'signatureCipher' in format.keys():
@@ -81,14 +82,14 @@ class Youtube():
                     size = format["contentLength"]
                 except Exception:
                     size = 0
-                self.foundLink["FoundLink"].update({"quality":quality,"title":self.videoTitle,"url":url,"size":self.convert_size(size),"thumbnail":self.thumbnail})
+                if (itag==140 or itag==141):
+                    quality="Audio"
+            self.foundLink["FoundLink"].update({"{}".format(quality):[{"title":self.videoTitle,"url":url,"size":self.convert_size(int(size)),"thumbnail":self.thumbnail}]})
         self.save_download_url()
 
-    
     def save_download_url(self):
-        ths = open("foundLink.json", "w")
-        ths.write(self.foundLink)
-        ths.close()
+        with open('foundLink.json', 'w') as f:
+            dump(self.foundLink, f)
     
     def convert_size(self,size_bytes):
         if size_bytes == 0:
