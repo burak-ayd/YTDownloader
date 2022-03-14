@@ -1,3 +1,4 @@
+import shutil
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from json import load, dumps,dump, loads
@@ -7,6 +8,7 @@ from os import path,remove
 from requests import get
 from re import findall
 import math
+import requests
 
 
 class Youtube():
@@ -18,6 +20,8 @@ class Youtube():
         self.cwd = path.dirname(path.abspath(__file__))
         self.options = Options()
         self.options.add_argument("--headless")
+        self.options.add_argument('--log-level=3')
+        self.options.add_experimental_option('excludeSwitches', ['enable-logging'])
         self.chrome_driver = self.cwd+r"/SeleniumDriver/chromedriver.exe" # Driver Version: 99.0.4844.51
         self.driver = webdriver.Chrome(options=self.options,executable_path=self.chrome_driver)
         self.config = load(open(self.cwd+"/config.json", "rb"))
@@ -38,7 +42,7 @@ class Youtube():
         open(self.cwd+'/config.json', 'w').write(dumps(self.config))
         return self.data
 
-    def get_video_data(self,url):  
+    def get_video_data(self,url):
         self.driver.get(url)
         script=self.driver.find_element_by_xpath('/html/body/script[1]').get_attribute('innerHTML')
         self.driver.close()
@@ -101,7 +105,19 @@ class Youtube():
         return "%s %s" % (s, size_name[i])
     
     def download_video(self,quality):
-        pass
+        with open("foundLink.json") as f:
+            foundLink=load(f)
+        url=foundLink["FoundLink"][quality][0]["url"]
+        local_filename = self.cwd+'/Downloaded/'+ self.videoTitle+'.mp4'
+        with requests.get(url, stream=True) as r:
+            with open(local_filename, 'wb') as f:
+                shutil.copyfileobj(r.raw, f)
     
     def download_audio(self):
-        pass
+        with open("foundLink.json") as f:
+            foundLink=load(f)
+        url=foundLink["FoundLink"]["Audio"][0]["url"]
+        local_filename = self.cwd+'/Downloaded/'+ self.videoTitle+'.mp3'
+        with requests.get(url, stream=True) as r:
+            with open(local_filename, 'wb') as f:
+                shutil.copyfileobj(r.raw, f)
