@@ -90,7 +90,7 @@ class Youtube():
                     size = 0
                 if (itag==140 or itag==141):
                     quality="Audio"
-            self.foundLink["FoundLink"].update({"{}".format(quality):[{"title":self.videoTitle,"url":url,"size":self.convert_size(int(size)),"thumbnail":self.thumbnail}]})
+            self.foundLink["FoundLink"].update({"{}".format(quality):[{"title":self.videoTitle,"url":url,"size":int(size),"thumbnail":self.thumbnail}]})
         self.save_download_url()
 
     def save_download_url(self):
@@ -112,7 +112,7 @@ class Youtube():
         local_filename = self.cwd+'/Downloads/'+ self.videoTitle+'.mp4'
         start = time.perf_counter()
         with requests.get(url, stream=True) as r:
-            total_length = self.convert_size(foundLink["FoundLink"][quality][0]["size"])
+            total_length = foundLink["FoundLink"][quality][0]["size"]
             dl = 0
             with open(local_filename, 'wb') as f:
                 for chunk in r.iter_content(chunk_size=1024):
@@ -129,7 +129,7 @@ class Youtube():
         local_filename = self.cwd+'/Downloads/'+ self.videoTitle+'.mp3'
         start = time.perf_counter()
         with requests.get(url, stream=True) as r:
-            total_length = self.convert_size(foundLink["FoundLink"][quality][0]["size"])
+            total_length = foundLink["FoundLink"]["Audio"][0]["size"]
             dl = 0
             with open(local_filename, 'wb') as f:
                 for chunk in r.iter_content(chunk_size=1024):
