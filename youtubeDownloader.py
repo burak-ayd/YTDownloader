@@ -1,9 +1,7 @@
-import shutil
-import sys
-import time
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from json import load, dumps,dump, loads
+from tqdm import tqdm
 from Decipher import Decipher
 from urllib.parse import unquote
 from os import path,remove
@@ -110,31 +108,31 @@ class Youtube():
             foundLink=load(f)
         url=foundLink["FoundLink"][quality][0]["url"]
         local_filename = self.cwd+'/Downloads/'+ self.videoTitle+'.mp4'
-        start = time.perf_counter()
-        with requests.get(url, stream=True) as r:
-            total_length = foundLink["FoundLink"][quality][0]["size"]
-            dl = 0
-            with open(local_filename, 'wb') as f:
-                for chunk in r.iter_content(chunk_size=1024):
-                    dl += len(chunk)
-                    #if chunk: 
+        total_length=foundLink["FoundLink"][quality][0]["size"]
+        r = requests.get(url, stream=True)
+        initial_pos = 0
+        with open(local_filename, 'wb') as f:
+            with tqdm(total=total_length, unit='B',
+                    unit_scale=True, unit_divisor=1024,
+                    desc=self.videoTitle+'.mp4', initial=initial_pos,
+                    ascii=True, miniters=1) as pbar:
+                for chunk in r.iter_content(32 * 1024):
                     f.write(chunk)
-                    done = int(30 * dl / int(total_length))
-                    sys.stdout.write("\r[%s%s] %s Mb/s" % ('=' * done, ' ' * (30-done), dl//(time.perf_counter() - start) / 100000 * 0.125))
+                    pbar.update(len(chunk))
     
     def download_audio(self):
         with open("foundLink.json") as f:
             foundLink=load(f)
         url=foundLink["FoundLink"]["Audio"][0]["url"]
         local_filename = self.cwd+'/Downloads/'+ self.videoTitle+'.mp3'
-        start = time.perf_counter()
-        with requests.get(url, stream=True) as r:
-            total_length = foundLink["FoundLink"]["Audio"][0]["size"]
-            dl = 0
-            with open(local_filename, 'wb') as f:
-                for chunk in r.iter_content(chunk_size=1024):
-                    dl += len(chunk)
-                    #if chunk: 
+        total_length=foundLink["FoundLink"]["Audio"][0]["size"]
+        r = requests.get(url, stream=True)
+        initial_pos = 0
+        with open(local_filename, 'wb') as f:
+            with tqdm(total=total_length, unit='B',
+                    unit_scale=True, unit_divisor=1024,
+                    desc=self.videoTitle+'.mp3', initial=initial_pos,
+                    ascii=True, miniters=1) as pbar:
+                for chunk in r.iter_content(32 * 1024):
                     f.write(chunk)
-                    done = int(30 * dl / int(total_length))
-                    sys.stdout.write("\r[%s%s] %s Mb/s" % ('=' * done, ' ' * (30-done), dl//(time.perf_counter() - start) / 100000 * 0.125))
+                    pbar.update(len(chunk))
