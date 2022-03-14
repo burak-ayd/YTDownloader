@@ -99,12 +99,11 @@ class Youtube():
     
     def convert_size(self,size_bytes):
         if size_bytes == 0:
-            return "0B"
-        size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
+            return "0"
         i = int(math.floor(math.log(size_bytes, 1024)))
         p = math.pow(1024, i)
         s = round(size_bytes / p, 2)
-        return "%s %s" % (s, size_name[i])
+        return s
     
     def download_video(self,quality):
         with open("foundLink.json") as f:
@@ -113,7 +112,7 @@ class Youtube():
         local_filename = self.cwd+'/Downloads/'+ self.videoTitle+'.mp4'
         start = time.perf_counter()
         with requests.get(url, stream=True) as r:
-            total_length = 128428705
+            total_length = self.convert_size(foundLink["FoundLink"][quality][0]["size"])
             dl = 0
             with open(local_filename, 'wb') as f:
                 for chunk in r.iter_content(chunk_size=1024):
@@ -130,7 +129,7 @@ class Youtube():
         local_filename = self.cwd+'/Downloads/'+ self.videoTitle+'.mp3'
         start = time.perf_counter()
         with requests.get(url, stream=True) as r:
-            total_length = 128428705
+            total_length = self.convert_size(foundLink["FoundLink"][quality][0]["size"])
             dl = 0
             with open(local_filename, 'wb') as f:
                 for chunk in r.iter_content(chunk_size=1024):
