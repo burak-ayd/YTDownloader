@@ -1,4 +1,6 @@
 import shutil
+import sys
+import time
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from json import load, dumps,dump, loads
@@ -108,16 +110,32 @@ class Youtube():
         with open("foundLink.json") as f:
             foundLink=load(f)
         url=foundLink["FoundLink"][quality][0]["url"]
-        local_filename = self.cwd+'/Downloaded/'+ self.videoTitle+'.mp4'
+        local_filename = self.cwd+'/Downloads/'+ self.videoTitle+'.mp4'
+        start = time.perf_counter()
         with requests.get(url, stream=True) as r:
+            total_length = 128428705
+            dl = 0
             with open(local_filename, 'wb') as f:
-                shutil.copyfileobj(r.raw, f)
+                for chunk in r.iter_content(chunk_size=1024):
+                    dl += len(chunk)
+                    #if chunk: 
+                    f.write(chunk)
+                    done = int(30 * dl / int(total_length))
+                    sys.stdout.write("\r[%s%s] %s Mb/s" % ('=' * done, ' ' * (30-done), dl//(time.perf_counter() - start) / 100000 * 0.125))
     
     def download_audio(self):
         with open("foundLink.json") as f:
             foundLink=load(f)
         url=foundLink["FoundLink"]["Audio"][0]["url"]
-        local_filename = self.cwd+'/Downloaded/'+ self.videoTitle+'.mp3'
+        local_filename = self.cwd+'/Downloads/'+ self.videoTitle+'.mp3'
+        start = time.perf_counter()
         with requests.get(url, stream=True) as r:
+            total_length = 128428705
+            dl = 0
             with open(local_filename, 'wb') as f:
-                shutil.copyfileobj(r.raw, f)
+                for chunk in r.iter_content(chunk_size=1024):
+                    dl += len(chunk)
+                    #if chunk: 
+                    f.write(chunk)
+                    done = int(30 * dl / int(total_length))
+                    sys.stdout.write("\r[%s%s] %s Mb/s" % ('=' * done, ' ' * (30-done), dl//(time.perf_counter() - start) / 100000 * 0.125))

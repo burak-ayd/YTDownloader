@@ -3,8 +3,8 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
-
+Downloads/*
+!Downloads/.gitkeep
 foundlink.json
 # C extensions
 *.so
@@ -14,7 +14,6 @@ foundlink.json
 build/
 develop-eggs/
 dist/
-downloads/
 eggs/
 .eggs/
 lib/
