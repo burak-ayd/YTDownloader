@@ -18,8 +18,7 @@
 >>>optional arguments:
 >>>  -h, --help  show this help message and exit
 >>>  -u url      Video URL
->>>  -q quality  Video Kalitesi için=>(1080p-720p-480p-360p) |||| Sadece Ses
-              İçin=>Audio
+>>>  -q quality  Video Kalitesi için=>(1080p-720p-480p-360p) |||| Sadece Ses İçin=>Audio
 
 >>>Korumalı içerikleri indiremez
 ```
